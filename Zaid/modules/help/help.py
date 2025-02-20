@@ -41,7 +41,7 @@ async def module_help(client: Client, message: Message):
                 ac.add_row([x[0], x[1] if len(x) >= 2 else None])
             xx = await client.send_message(
                 message.chat.id,
-                f"```{str(ac)}```\n• @TKS_JOIN × @TKS_JOIN •",
+                f"```{str(ac)}```\n• @TG_GP_IRAN × @TG_GP_IRAN •",
                 reply_to_message_id=ReplyCheck(message),
             )
             await xx.reply(
@@ -55,7 +55,7 @@ async def module_help(client: Client, message: Message):
             this_command = f"──「 **راهنمای {str(help_arg).upper()}** 」──\n\n"
             for x in commands:
                 this_command += f"  •  **دستور:** `.{str(x)}`\n  •  **عملکرد:** `{str(commands[x])}`\n\n"
-            this_command += "© @TKS_JOIN"
+            this_command += "© @TG_GP_IRAN"
             await edit_or_reply(
                 message, this_command, parse_mode=enums.ParseMode.MARKDOWN
             )
@@ -93,7 +93,7 @@ async def module_helper(client: Client, message: Message):
             this_command = f"──「 **راهنمای {str(help_arg).upper()}** 」──\n\n"
             for x in commands:
                 this_command += f"  •  **دستور:** `.{str(x)}`\n  •  **عملکرد:** `{str(commands[x])}`\n\n"
-            this_command += "© @TKS_JOIN"
+            this_command += "© @TG_GP_IRAN"
             await edit_or_reply(
                 message, this_command, parse_mode=enums.ParseMode.MARKDOWN
             )
