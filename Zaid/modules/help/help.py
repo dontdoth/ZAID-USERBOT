@@ -6,8 +6,7 @@ from Zaid import app, CMD_HELP
 from Zaid.helper.PyroHelpers import ReplyCheck
 from Zaid.helper.utility import split_list
 
-# دکمه‌های اینلاین
-help_buttons = InlineKeyboardMarkup([
+help_buttons = [
     [
         InlineKeyboardButton("👤 دستورات کاربری", callback_data="user_cmds"),
         InlineKeyboardButton("⚙️ دستورات ادمین", callback_data="admin_cmds")
@@ -19,7 +18,7 @@ help_buttons = InlineKeyboardMarkup([
     [
         InlineKeyboardButton("بستن ✖️", callback_data="close_help")
     ]
-])
+]
 
 async def edit_or_reply(message: Message, *args, **kwargs) -> Message:
     xyz = (
@@ -33,7 +32,6 @@ async def edit_or_reply(message: Message, *args, **kwargs) -> Message:
 async def module_help(client: Client, message: Message):
     cmd = message.command
     help_arg = ""
-    bot_username = (await app.get_me()).username
     
     if len(cmd) > 1:
         help_arg = " ".join(cmd[1:])
@@ -41,15 +39,18 @@ async def module_help(client: Client, message: Message):
         help_text = "**🤖 راهنمای دستورات ZAID USERBOT**\n\n"
         help_text += "لطفا یکی از بخش‌های زیر را انتخاب کنید:"
         
-        await message.edit(help_text, reply_markup=help_buttons)
+        await message.edit(
+            help_text,
+            reply_markup=InlineKeyboardMarkup(help_buttons)
+        )
         return
 
     if help_arg:
         if help_arg in CMD_HELP:
             commands: dict = CMD_HELP[help_arg]
-            this_command = f"──「 **Help For {str(help_arg).upper()}** 」──\n\n"
+            this_command = f"──「 **راهنمای {str(help_arg).upper()}** 」──\n\n"
             for x in commands:
-                this_command += f"  •  **Command:** `.{str(x)}`\n  •  **Function:** `{str(commands[x])}`\n\n"
+                this_command += f"  •  **دستور:** `.{str(x)}`\n  •  **عملکرد:** `{str(commands[x])}`\n\n"
             this_command += "© @TG_GP_IRAN"
             await edit_or_reply(
                 message, this_command, parse_mode=enums.ParseMode.MARKDOWN
@@ -57,7 +58,7 @@ async def module_help(client: Client, message: Message):
         else:
             await edit_or_reply(
                 message,
-                f"`{help_arg}` **Not a Valid Module Name.**",
+                f"`{help_arg}` **ماژول معتبری نیست.**",
             )
 
 @Client.on_callback_query()
@@ -72,10 +73,12 @@ async def help_button_callback(client, callback_query):
 • `.info` - اطلاعات کاربر
 • `.id` - دریافت آیدی
 """
-        back_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-        ]])
-        await callback_query.edit_message_text(text, reply_markup=back_button)
+        await callback_query.edit_message_text(
+            text,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
+            ]])
+        )
 
     elif data == "admin_cmds":
         text = """
@@ -85,10 +88,12 @@ async def help_button_callback(client, callback_query):
 • `.mute` - سکوت کاربر
 • `.unmute` - رفع سکوت
 """
-        back_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-        ]])
-        await callback_query.edit_message_text(text, reply_markup=back_button)
+        await callback_query.edit_message_text(
+            text,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
+            ]])
+        )
 
     elif data == "tools_cmds":
         text = """
@@ -98,10 +103,12 @@ async def help_button_callback(client, callback_query):
 • `.tts` - تبدیل متن به گفتار
 • `.paste` - اشتراک کد
 """
-        back_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-        ]])
-        await callback_query.edit_message_text(text, reply_markup=back_button)
+        await callback_query.edit_message_text(
+            text,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
+            ]])
+        )
 
     elif data == "music_cmds":
         text = """
@@ -111,15 +118,20 @@ async def help_button_callback(client, callback_query):
 • `.pause` - توقف موقت
 • `.resume` - ادامه پخش
 """
-        back_button = InlineKeyboardMarkup([[
-            InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-        ]])
-        await callback_query.edit_message_text(text, reply_markup=back_button)
+        await callback_query.edit_message_text(
+            text,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
+            ]])
+        )
 
     elif data == "back_to_help":
         help_text = "**🤖 راهنمای دستورات ZAID USERBOT**\n\n"
         help_text += "لطفا یکی از بخش‌های زیر را انتخاب کنید:"
-        await callback_query.edit_message_text(help_text, reply_markup=help_buttons)
+        await callback_query.edit_message_text(
+            help_text,
+            reply_markup=InlineKeyboardMarkup(help_buttons)
+        )
 
     elif data == "close_help":
         await callback_query.message.delete()
