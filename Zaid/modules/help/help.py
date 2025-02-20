@@ -1,24 +1,10 @@
 import asyncio
 from prettytable import PrettyTable
 from pyrogram import Client, enums, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import Message
 from Zaid import app, CMD_HELP
 from Zaid.helper.PyroHelpers import ReplyCheck
 from Zaid.helper.utility import split_list
-
-help_buttons = [
-    [
-        InlineKeyboardButton("👤 دستورات کاربری", callback_data="user_cmds"),
-        InlineKeyboardButton("⚙️ دستورات ادمین", callback_data="admin_cmds")
-    ],
-    [
-        InlineKeyboardButton("🛠 ابزارها", callback_data="tools_cmds"),
-        InlineKeyboardButton("🎵 موزیک", callback_data="music_cmds")
-    ],
-    [
-        InlineKeyboardButton("بستن ✖️", callback_data="close_help")
-    ]
-]
 
 async def edit_or_reply(message: Message, *args, **kwargs) -> Message:
     xyz = (
@@ -28,22 +14,40 @@ async def edit_or_reply(message: Message, *args, **kwargs) -> Message:
     )
     return await xyz(*args, **kwargs)
 
-@Client.on_message(filters.command(["help", "helpme"], ".") & filters.me)
+@Client.on_message(filters.command(["help", "helpme", "راهنما", "کمک"], ".") & filters.me)
 async def module_help(client: Client, message: Message):
     cmd = message.command
     help_arg = ""
-    
+    bot_username = (await app.get_me()).username
     if len(cmd) > 1:
         help_arg = " ".join(cmd[1:])
     elif not message.reply_to_message and len(cmd) == 1:
-        help_text = "**🤖 راهنمای دستورات ZAID USERBOT**\n\n"
-        help_text += "لطفا یکی از بخش‌های زیر را انتخاب کنید:"
-        
-        await message.edit(
-            help_text,
-            reply_markup=InlineKeyboardMarkup(help_buttons)
-        )
-        return
+        await message.edit("⚡️")
+        try:
+            nice = await client.get_inline_bot_results(bot=bot_username, query="helper")
+            await asyncio.gather(
+                message.delete(),
+                client.send_inline_bot_result(
+                    message.chat.id, nice.query_id, nice.results[0].id
+                ),
+            )
+        except BaseException as e:
+            print(f"{e}")
+            ac = PrettyTable()
+            ac.header = False
+            ac.title = "🤖 افزونه‌های ربات کاربر"
+            ac.align = "r"  # راست‌چین برای فارسی
+            for x in split_list(sorted(CMD_HELP.keys()), 2):
+                ac.add_row([x[0], x[1] if len(x) >= 2 else None])
+            xx = await client.send_message(
+                message.chat.id,
+                f"```{str(ac)}```\n• @TKS_JOIN × @TKS_JOIN •",
+                reply_to_message_id=ReplyCheck(message),
+            )
+            await xx.reply(
+                f"**راهنمای استفاده:** برای مشاهده اطلاعات هر ماژول، دستور `.راهنما [نام ماژول]` را وارد کنید"
+            )
+            return
 
     if help_arg:
         if help_arg in CMD_HELP:
@@ -51,92 +55,56 @@ async def module_help(client: Client, message: Message):
             this_command = f"──「 **راهنمای {str(help_arg).upper()}** 」──\n\n"
             for x in commands:
                 this_command += f"  •  **دستور:** `.{str(x)}`\n  •  **عملکرد:** `{str(commands[x])}`\n\n"
-            this_command += "© @TG_GP_IRAN"
+            this_command += "© @TKS_JOIN"
             await edit_or_reply(
                 message, this_command, parse_mode=enums.ParseMode.MARKDOWN
             )
         else:
             await edit_or_reply(
                 message,
-                f"`{help_arg}` **ماژول معتبری نیست.**",
+                f"`{help_arg}` **نام ماژول معتبر نیست.**",
             )
 
-@Client.on_callback_query()
-async def help_button_callback(client, callback_query):
-    data = callback_query.data
-    
-    if data == "user_cmds":
-        text = """
-**👤 دستورات کاربری:**
-• `.start` - شروع ربات
-• `.ping` - تست آنلاین بودن
-• `.info` - اطلاعات کاربر
-• `.id` - دریافت آیدی
-"""
-        await callback_query.edit_message_text(
-            text,
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-            ]])
+@Client.on_message(filters.command(["plugins", "modules", "افزونه‌ها", "ماژول‌ها"], ".") & filters.me)
+async def module_helper(client: Client, message: Message):
+    cmd = message.command
+    help_arg = ""
+    if len(cmd) > 1:
+        help_arg = " ".join(cmd[1:])
+    elif message.reply_to_message and len(cmd) == 1:
+        help_arg = message.reply_to_message.text
+    elif not message.reply_to_message and len(cmd) == 1:
+        ac = PrettyTable()
+        ac.header = False
+        ac.title = "🤖 افزونه‌های ربات کاربر"
+        ac.align = "r"  # راست‌چین برای فارسی
+        for x in split_list(sorted(CMD_HELP.keys()), 2):
+            ac.add_row([x[0], x[1] if len(x) >= 2 else None])
+        await edit_or_reply(
+            message, f"```{str(ac)}```\n• @TKS_JOIN × @TKS_JOIN •"
+        )
+        await message.reply(
+            f"**راهنمای استفاده**: برای مشاهده جزئیات هر ماژول، دستور `.راهنما [نام ماژول]` را وارد کنید"
         )
 
-    elif data == "admin_cmds":
-        text = """
-**⚙️ دستورات ادمین:**
-• `.ban` - مسدود کردن کاربر
-• `.unban` - رفع مسدودیت
-• `.mute` - سکوت کاربر
-• `.unmute` - رفع سکوت
-"""
-        await callback_query.edit_message_text(
-            text,
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-            ]])
-        )
-
-    elif data == "tools_cmds":
-        text = """
-**🛠 ابزارها:**
-• `.weather` - آب و هوا
-• `.tr` - ترجمه متن
-• `.tts` - تبدیل متن به گفتار
-• `.paste` - اشتراک کد
-"""
-        await callback_query.edit_message_text(
-            text,
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-            ]])
-        )
-
-    elif data == "music_cmds":
-        text = """
-**🎵 دستورات موزیک:**
-• `.play` - پخش موزیک
-• `.skip` - رد کردن
-• `.pause` - توقف موقت
-• `.resume` - ادامه پخش
-"""
-        await callback_query.edit_message_text(
-            text,
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_help")
-            ]])
-        )
-
-    elif data == "back_to_help":
-        help_text = "**🤖 راهنمای دستورات ZAID USERBOT**\n\n"
-        help_text += "لطفا یکی از بخش‌های زیر را انتخاب کنید:"
-        await callback_query.edit_message_text(
-            help_text,
-            reply_markup=InlineKeyboardMarkup(help_buttons)
-        )
-
-    elif data == "close_help":
-        await callback_query.message.delete()
+    if help_arg:
+        if help_arg in CMD_HELP:
+            commands: dict = CMD_HELP[help_arg]
+            this_command = f"──「 **راهنمای {str(help_arg).upper()}** 」──\n\n"
+            for x in commands:
+                this_command += f"  •  **دستور:** `.{str(x)}`\n  •  **عملکرد:** `{str(commands[x])}`\n\n"
+            this_command += "© @TKS_JOIN"
+            await edit_or_reply(
+                message, this_command, parse_mode=enums.ParseMode.MARKDOWN
+            )
+        else:
+            await edit_or_reply(
+                message,
+                f"`{help_arg}` **نام ماژول معتبر نیست.**",
+            )
 
 def add_command_help(module_name, commands):
+    """افزودن راهنمای دستورات به ماژول"""
     if module_name in CMD_HELP.keys():
         command_dict = CMD_HELP[module_name]
     else:
