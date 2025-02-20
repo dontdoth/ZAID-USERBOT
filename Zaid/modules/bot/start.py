@@ -2,46 +2,72 @@ from Zaid import app, API_ID, API_HASH
 from config import OWNER_ID, ALIVE_PIC
 from pyrogram import filters
 import os
-import re
 import asyncio
-import time
 from pyrogram import *
 from pyrogram.types import *
 
-# منوی اصلی با دکمه‌های فارسی
+# تنظیم لینک‌های کانال و گروه
+SUPPORT_GROUP = "https://t.me/atrinmusic_tm1"
+CHANNEL_LINK = "https://t.me/atrinmusic_tm"
+
+# منوی اصلی
 MAIN_BUTTONS = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton(text="👤 حساب من", callback_data="MyAccount")
+        InlineKeyboardButton(text="👤 حساب من", callback_data="account_menu")
     ],
     [
-        InlineKeyboardButton(text="💎 خرید اشتراک", callback_data="BuySub")
+        InlineKeyboardButton(text="💎 خرید اشتراک", callback_data="buy_menu")
     ],
     [
-        InlineKeyboardButton(text="💰 قیمت‌ها", callback_data="Price"),
-        InlineKeyboardButton(text="👛 کیف پول", callback_data="Wallet")
+        InlineKeyboardButton(text="💰 قیمت‌ها", callback_data="price_menu"),
+        InlineKeyboardButton(text="👛 کیف پول", callback_data="wallet_menu")
     ],
     [
-        InlineKeyboardButton(text="🔄 کلون اکانت", callback_data="clone_account")
+        InlineKeyboardButton(text="🔄 ساخت سلف", callback_data="clone_menu")
     ],
     [
-        InlineKeyboardButton(text="❓ سوالات متداول", url="https://t.me/atrinmusic_tm"),
-        InlineKeyboardButton(text="ℹ️ سلف چیست؟", callback_data="WhatSelf")
-    ],
-    [
-        InlineKeyboardButton(text="📞 پشتیبانی", callback_data="Support")
+        InlineKeyboardButton(text="❓ سوالات متداول", url=CHANNEL_LINK),
+        InlineKeyboardButton(text="📞 پشتیبانی", url=SUPPORT_GROUP)
     ]
 ])
 
-PHONE_NUMBER_TEXT = """
+# متن شروع
+START_TEXT = """
 **👋 سلام به ربات مدیریت سلف خوش آمدید!**
 
 • با این ربات می‌توانید:
 - اکانت خود را مدیریت کنید
 - اشتراک تهیه کنید
-- کلون اکانت بسازید
+- سلف بسازید
 - از پشتیبانی کمک بگیرید
 
 🔰 لطفا از منوی زیر گزینه مورد نظر خود را انتخاب کنید.
+"""
+
+# متن منوی کلون
+CLONE_TEXT = """
+**🔄 ساخت سلف**
+
+برای ساخت سلف، مراحل زیر را انجام دهید:
+
+1️⃣ ابتدا استرینگ سشن خود را از @StringSessionBot دریافت کنید
+
+2️⃣ سپس استرینگ سشن را با دستور زیر ارسال کنید:
+`/clone YOUR_STRING_SESSION`
+
+⚠️ نکته: استرینگ سشن باید معتبر و مربوط به اکانت شما باشد.
+"""
+
+# متن منوی قیمت
+PRICE_TEXT = """
+**💰 تعرفه‌های اشتراک سلف**
+
+⭐️ اشتراک 1 ماهه: 50,000 تومان
+⭐️ اشتراک 3 ماهه: 140,000 تومان
+⭐️ اشتراک 6 ماهه: 260,000 تومان
+⭐️ اشتراک نامحدود: 500,000 تومان
+
+برای خرید از دکمه "خرید اشتراک" استفاده کنید.
 """
 
 @app.on_message(filters.user(OWNER_ID) & filters.command("start"))
@@ -49,26 +75,70 @@ async def start_command(client: app, message):
     await client.send_photo(
         message.chat.id,
         ALIVE_PIC,
-        caption=PHONE_NUMBER_TEXT,
+        caption=START_TEXT,
         reply_markup=MAIN_BUTTONS
     )
 
 @app.on_callback_query()
 async def callback_handlers(client: app, callback_query: CallbackQuery):
-    if callback_query.data == "clone_account":
+    data = callback_query.data
+    
+    if data == "clone_menu":
         await callback_query.message.edit_text(
-            "**🔄 کلون اکانت**\n\n"
-            "برای کلون کردن اکانت خود، لطفا string session خود را به صورت زیر ارسال کنید:\n"
-            "`/clone YOUR_STRING_SESSION`\n\n"
-            "⚠️ نکته: string session باید معتبر و مربوط به اکانت شما باشد.",
+            CLONE_TEXT,
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")
             ]])
         )
     
-    elif callback_query.data == "back_to_main":
+    elif data == "price_menu":
         await callback_query.message.edit_text(
-            PHONE_NUMBER_TEXT,
+            PRICE_TEXT,
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("💎 خرید اشتراک", callback_data="buy_menu"),
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")
+            ]])
+        )
+    
+    elif data == "account_menu":
+        user_id = callback_query.from_user.id
+        await callback_query.message.edit_text(
+            f"**👤 اطلاعات حساب کاربری**\n\n"
+            f"🆔 شناسه کاربری: `{user_id}`\n"
+            f"⭐️ نوع اشتراک: رایگان\n"
+            f"⏰ زمان باقیمانده: 0 روز\n\n"
+            "برای ارتقا حساب، از بخش خرید اشتراک اقدام کنید.",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("💎 خرید اشتراک", callback_data="buy_menu"),
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")
+            ]])
+        )
+    
+    elif data == "buy_menu":
+        await callback_query.message.edit_text(
+            "**💎 خرید اشتراک**\n\n"
+            "برای خرید اشتراک، لطفا یکی از روش‌های زیر را انتخاب کنید:",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💳 پرداخت مستقیم", callback_data="direct_pay")],
+                [InlineKeyboardButton("👛 پرداخت با کیف پول", callback_data="wallet_pay")],
+                [InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")]
+            ])
+        )
+    
+    elif data == "wallet_menu":
+        await callback_query.message.edit_text(
+            "**👛 کیف پول**\n\n"
+            "💰 موجودی فعلی: 0 تومان\n\n"
+            "برای شارژ کیف پول از دکمه زیر استفاده کنید:",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("💳 شارژ کیف پول", callback_data="charge_wallet")],
+                [InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")]
+            ])
+        )
+    
+    elif data == "back_to_main":
+        await callback_query.message.edit_text(
+            START_TEXT,
             reply_markup=MAIN_BUTTONS
         )
 
@@ -78,7 +148,7 @@ async def clone_command(bot: app, msg: Message):
         if len(msg.command) < 2:
             await msg.reply(
                 "**⚠️ خطا در دستور**\n\n"
-                "لطفا string session خود را همراه با دستور ارسال کنید:\n"
+                "لطفا استرینگ سشن خود را همراه با دستور ارسال کنید:\n"
                 "`/clone YOUR_STRING_SESSION`",
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("🔙 برگشت به منو", callback_data="back_to_main")
@@ -87,7 +157,7 @@ async def clone_command(bot: app, msg: Message):
             return
 
         session = msg.command[1]
-        status_msg = await msg.reply("🔄 در حال راه‌اندازی کلاینت...")
+        status_msg = await msg.reply("🔄 در حال ساخت سلف...")
         
         client = Client(
             name="Melody",
@@ -101,7 +171,8 @@ async def clone_command(bot: app, msg: Message):
         user = await client.get_me()
         
         await status_msg.edit(
-            f"✅ کلاینت شما با نام {user.first_name} با موفقیت راه‌اندازی شد!",
+            f"✅ سلف شما با نام {user.first_name} با موفقیت ساخته شد!\n\n"
+            "🔰 برای دریافت راهنمای دستورات از /help استفاده کنید.",
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("🔙 برگشت به منو", callback_data="back_to_main")
             ]])
@@ -109,34 +180,10 @@ async def clone_command(bot: app, msg: Message):
         
     except Exception as e:
         await msg.reply(
-            f"**❌ خطا در راه‌اندازی کلاینت:**\n`{str(e)}`\n\n"
-            "لطفا دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.",
+            f"**❌ خطا در ساخت سلف:**\n`{str(e)}`\n\n"
+            "لطفا از استرینگ سشن معتبر استفاده کنید یا با پشتیبانی تماس بگیرید.",
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("🔙 برگشت به منو", callback_data="back_to_main")
+                InlineKeyboardButton("📞 پشتیبانی", url=SUPPORT_GROUP),
+                InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")
             ]])
         )
-
-# اضافه کردن سایر callback handlers برای دکمه‌های دیگر
-@app.on_callback_query(filters.regex('^(MyAccount|BuySub|Price|Wallet|WhatSelf|Support)$'))
-async def other_callbacks(client: app, callback_query: CallbackQuery):
-    data = callback_query.data
-    
-    if data == "MyAccount":
-        text = "👤 **اطلاعات حساب شما**\n\nدر حال توسعه..."
-    elif data == "BuySub":
-        text = "💎 **خرید اشتراک**\n\nدر حال توسعه..."
-    elif data == "Price":
-        text = "💰 **لیست قیمت‌ها**\n\nدر حال توسعه..."
-    elif data == "Wallet":
-        text = "👛 **کیف پول**\n\nدر حال توسعه..."
-    elif data == "WhatSelf":
-        text = "ℹ️ **سلف چیست؟**\n\nدر حال توسعه..."
-    elif data == "Support":
-        text = "📞 **پشتیبانی**\n\nدر حال توسعه..."
-    
-    await callback_query.message.edit_text(
-        text,
-        reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("🔙 برگشت", callback_data="back_to_main")
-        ]])
-    )
