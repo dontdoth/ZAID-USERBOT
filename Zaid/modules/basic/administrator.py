@@ -327,38 +327,38 @@ async def demote(client: Client, message: Message):
 
 
 add_command_help(
-    "admin",
+    "ادمین",
     [
-        ["ban [reply/username/userid]", "Ban someone."],
+        ["ban [ریپلای/یوزرنیم/آیدی]", "بن کردن کاربر"],
         [
-            f"unban [reply/username/userid]",
-            "Unban someone.",
+            f"unban [ریپلای/یوزرنیم/آیدی]",
+            "آنبن کردن کاربر",
         ],
-        ["kick [reply/username/userid]", "kick out someone from your group."],
+        ["kick [ریپلای/یوزرنیم/آیدی]", "اخراج کاربر از گروه"],
         [
-            f"promote `or` .fullpromote",
-            "Promote someone.",
+            f"promote یا .fullpromote",
+            "ادمین کردن کاربر",
         ],
-        ["demote", "Demote someone."],
+        ["demote", "برکناری از ادمینی"],
         [
-            "mute [reply/username/userid]",
-            "Mute someone.",
-        ],
-        [
-            "unmute [reply/username/userid]",
-            "Unmute someone.",
+            "mute [ریپلای/یوزرنیم/آیدی]",
+            "سکوت کردن کاربر",
         ],
         [
-            "pin [reply]",
-            "to pin any message.",
+            "unmute [ریپلای/یوزرنیم/آیدی]",
+            "برداشتن حالت سکوت کاربر",
         ],
         [
-            "unpin [reply]",
-            "To unpin any message.",
+            "pin [ریپلای]",
+            "سنجاق کردن پیام",
         ],
         [
-            "setgpic [reply ke image]",
-            "To set an group profile pic",
+            "unpin [ریپلای]",
+            "برداشتن سنجاق پیام",
+        ],
+        [
+            "setgpic [ریپلای روی عکس]",
+            "تنظیم عکس گروه",
         ],
     ],
 )
