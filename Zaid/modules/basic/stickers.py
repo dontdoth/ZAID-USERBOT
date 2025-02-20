@@ -579,46 +579,46 @@ async def stick2png(client: Client, message: Message):
 
 
 add_command_help(
-    "sticker",
+    "استیکر",
     [
         [
-            f"kang `reply` image",
-            f"Reply .kang To Sticker Or Image To Add To Sticker Pack.",
+            f"kang `ریپلای` عکس",
+            f"برای افزودن استیکر یا تصویر به پک استیکر خود، روی آن ریپلای کرده و دستور .kang را بزنید.",
         ],
         [
-            f"kang [emoji] `or` .double [emoji]",
-            f"To add and custom emoji stickers to your sticker pack.\n\n`",
+            f"kang [ایموجی] یا .double [ایموجی]",
+            f"برای افزودن استیکر با ایموجی دلخواه به پک استیکر شما.\n\n`",
         ],
         [
-            f"packinfo `or` .stickerinfo",
-            "To Get Sticker Pack Information.",
+            f"packinfo یا .stickerinfo",
+            "برای دریافت اطلاعات پک استیکر.",
         ],
         [
-            f"mtoi [reply ke sticker] or .getsticker [reply ke sticker]",
-            "Reply to sticker to get sticker photo.",
+            f"mtoi [ریپلای روی استیکر] یا .getsticker [ریپلای روی استیکر]",
+            "برای تبدیل استیکر به عکس، روی آن ریپلای کنید.",
         ],
-        ["stickers [nama sticker]", "To find sticker packs."],
+        ["stickers [نام استیکر]", "برای جستجوی پک‌های استیکر."],
     ],
 )
 
 
 add_command_help(
-    "memify",
+    "میم‌ساز",
     [
         [
-            "mmf Top Text ; Bottom Text",
-            "Reply To Message Sticker or Photo will be Converted to the specified meme text sticker.",
+            "mmf متن بالا ; متن پایین",
+            "با ریپلای روی استیکر یا عکس، آن را به استیکر متنی (میم) تبدیل می‌کند.",
         ],
     ],
 )
 
 
 add_command_help(
-    "tiny",
+    "کوچک‌ساز",
     [
         [
-            "tiny [reply ke photo/sticker]",
-            "To Change the Sticker to be Small.",
+            "tiny [ریپلای روی عکس/استیکر]",
+            "برای تبدیل استیکر به نسخه کوچک‌تر.",
         ],
     ],
 )
